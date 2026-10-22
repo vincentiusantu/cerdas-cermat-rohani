@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Babak Final LCC Rohani 2026 — Paroki Santa Odilia Cicadas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --stage-1:#0f1226; --stage-2:#151a3a;
+    --card-back:#232a63; --card-back-2:#2f3782;
+    --gold:#f0c96b; --gold-deep:#c79b3a;
+    --ink:#f2f3ff; --ink-dim:#aeb4d9;
+    --t0:#e0384f; --t1:#2e8bf0; --t2:#2fbf6e;
+    --hangus:#4a4442;
+    --panel:#1a1f42; --panel-2:#12162f; --panel-border:#2f3766;
+    --ok:#2fbf6e; --bad:#e0384f;
+  }
+  :root:not([data-theme="light"]){color-scheme:dark;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:radial-gradient(ellipse at 50% -10%,#23295c 0%,transparent 55%),
+               linear-gradient(180deg,var(--stage-1),var(--stage-2));
+    background-attachment:fixed;
+    font-family:'Inter',system-ui,sans-serif; color:var(--ink);
+    padding:18px 16px 110px; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1060px;margin:0 auto;}
+
+  /* ===== animasi bertarget: pergantian layar, skor berubah, momen penting ===== */
+  @keyframes pageIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  .page-enter{animation:pageIn .34s cubic-bezier(.2,.8,.3,1) both;}
+
+  @keyframes scoreBump{0%{transform:scale(1);}45%{transform:scale(1.32);}100%{transform:scale(1);}}
+  @keyframes chipGlow{0%,100%{box-shadow:0 0 0 0 rgba(240,201,107,0);}40%{box-shadow:0 0 0 10px rgba(240,201,107,.35);}}
+  .score-num.bump{animation:scoreBump .5s cubic-bezier(.3,.6,.3,1) both;}
+  .score-chip.bump{animation:chipGlow .6s ease-out both;}
+
+  @keyframes popScale{from{opacity:0;transform:scale(.82);}to{opacity:1;transform:scale(1);}}
+  @keyframes shakeCard{10%,90%{transform:translateX(-2px);}20%,80%{transform:translateX(4px);}30%,50%,70%{transform:translateX(-7px);}40%,60%{transform:translateX(7px);}}
+  .flash-correct{animation:popScale .3s ease-out both;}
+  .flash-wrong{animation:shakeCard .45s cubic-bezier(.36,.07,.19,.97) both;}
+
+  @media (prefers-reduced-motion: reduce){
+    .page-enter,.score-num.bump,.score-chip.bump,.flash-correct,.flash-wrong{animation:none;}
+  }
+
+  /* ===== kop acara ===== */
+  .kop{text-align:center;border-bottom:1px solid var(--panel-border);padding-bottom:14px;margin-bottom:16px;}
+  .kop h1{
+    font:700 clamp(15px,2.9vw,24px) 'Space Grotesk',sans-serif;
+    margin:0; letter-spacing:.6px; line-height:1.25; color:var(--gold);
+  }
+  .kop .paroki{font-size:clamp(11px,1.8vw,13px);color:white;margin-top:5px;letter-spacing:1.4px;text-transform:uppercase;}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .round-pill{font:700 11px 'Inter',sans-serif;color:var(--gold);border:1px solid var(--gold-deep);border-radius:999px;padding:4px 12px;white-space:nowrap;}
+  .tools{display:flex;gap:8px;flex-wrap:wrap;}
+  .icon-btn{background:var(--panel);border:1px solid var(--panel-border);color:var(--ink-dim);font:600 13px 'Inter',sans-serif;padding:8px 14px;border-radius:8px;cursor:pointer;}
+  .icon-btn:hover{border-color:var(--gold);color:var(--gold);}
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
+  /* ===== papan skor ===== */
+  .scoreboard{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:22px;}
+  .score-chip{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--panel-border);border-radius:12px;padding:9px 16px;min-width:165px;}
+  .score-chip.lead{border-color:var(--gold-deep);}
+  .score-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+  [data-t="0"] .score-dot,[data-t="0"] .dot{background:var(--t0);}
+  [data-t="1"] .score-dot,[data-t="1"] .dot{background:var(--t1);}
+  [data-t="2"] .score-dot,[data-t="2"] .dot{background:var(--t2);}
+  .score-meta{display:flex;flex-direction:column;line-height:1.25;min-width:0;}
+  .score-name{font-weight:600;font-size:18px;outline:none;cursor:text;border-bottom:1px dashed transparent;}
+  .score-name:hover,.score-name:focus{border-bottom-color:var(--ink-dim);}
+  .score-num{font:700 20px 'Space Grotesk',sans-serif;color:var(--gold);}
+
+  /* ===== umum ===== */
+  .stage{background:var(--panel);border:1px solid var(--panel-border);border-radius:16px;padding:clamp(18px,3vw,30px);}
+  .btn{font:600 14px 'Inter',sans-serif;border-radius:9px;padding:11px 22px;cursor:pointer;border:1px solid transparent;}
+  .btn-primary{background:var(--gold);color:#221605;}
+  .btn-primary:disabled{background:#3f4570;color:#8d93b8;cursor:not-allowed;}
+  .btn-ghost{background:none;border-color:var(--panel-border);color:var(--ink-dim);}
+  .btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
+  .btn-danger{background:var(--bad);color:#fff;}
+  .btn-sm{padding:7px 14px;font-size:13px;}
+  .center{text-align:center;}
+  .stage-actions{display:flex;justify-content:center;gap:10px;margin-top:24px;flex-wrap:wrap;}
+  .muted{color:var(--ink-dim);font-size:13px;}
+
+  .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px;}
+  @media(max-width:620px){.home-grid{grid-template-columns:1fr;}}
+  .home-card{background:var(--panel-2);border:1px solid var(--panel-border);border-radius:13px;padding:18px;text-align:left;}
+  .home-card h3{margin:0 0 6px;font:700 23px 'Space Grotesk',sans-serif;color:var(--gold);}
+  .home-card p{margin:0;font-size:18px;color:white;line-height:1.5;}
+
+  /* ===== ronde 1 ===== */
+  .q-progress{display:flex;gap:5px;justify-content:center;margin-bottom:18px;flex-wrap:wrap;}
+  .pip{width:26px;height:5px;border-radius:3px;background:#282e58;}
+  .pip.done{background:var(--gold-deep);} .pip.now{background:var(--gold);}
+  .theme-box{text-align:center;padding:8px 0 4px;}
+  .theme-label{font-size:12px;color:var(--ink-dim);margin-bottom:6px;}
+  .theme-name{font:700 clamp(26px,5vw,44px) 'Space Grotesk',sans-serif;line-height:1.15;margin:0 0 14px;}
+  .bobot{display:inline-flex;align-items:baseline;gap:7px;border:1px solid var(--gold-deep);border-radius:999px;padding:7px 18px;color:var(--gold);}
+  .bobot b{font:700 20px 'Space Grotesk',sans-serif;}
+  .bobot span{font-size:20px;letter-spacing:.4px;}
+  .row-list{display:grid;gap:10px;margin:24px auto 0;max-width:580px;}
+  .lrow{display:flex;align-items:center;gap:10px;background:var(--panel-2);border:1px solid var(--panel-border);border-radius:11px;padding:10px 12px;}
+  .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .nm{flex:1;font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .choice{border:1px solid var(--panel-border);background:none;color:var(--ink-dim);font:600 13px 'Inter',sans-serif;padding:7px 14px;border-radius:8px;cursor:pointer;}
+  .choice.sel-jawab{background:var(--ok);border-color:var(--ok);color:#06240f;}
+  .choice.sel-lewat{background:#4e5480;border-color:#4e5480;color:#fff;}
+  .qtext{font-size:clamp(16px,2.4vw,24px);line-height:1.5;margin:0 0 18px;text-align:center;}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:720px;margin:0 auto;}
+  @media(max-width:620px){.opts{grid-template-columns:1fr;}}
+  .opt{display:flex;gap:10px;align-items:flex-start;background:var(--panel-2);border:1px solid var(--panel-border);border-radius:11px;padding:12px 14px;font-size:18px;line-height:1.45;}
+  .opt .lt{font:700 24px 'Space Grotesk',sans-serif;color:var(--gold);flex-shrink:0;width:16px;}
+  .opt.is-key{border-color:var(--ok);background:rgba(47,191,110,.14);}
+  .skip{font-size:12px;color:var(--ink-dim);}
+  .pbtn{width:34px;height:34px;border-radius:8px;border:1px solid var(--panel-border);background:none;color:var(--ink);font:700 14px 'Space Grotesk',sans-serif;cursor:pointer;}
+  .pbtn.on{background:var(--gold);border-color:var(--gold);color:#221605;}
+  .jw{font-size:12px;color:var(--ink-dim);margin-right:4px;}
+  .delta{font:700 16px 'Space Grotesk',sans-serif;min-width:56px;text-align:right;}
+  .delta.plus{color:var(--ok);} .delta.minus{color:var(--bad);} .delta.zero{color:var(--ink-dim);}
+
+  /* ===== rekap ronde 1 ===== */
+  .recap-summary{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:22px;}
+  .recap-stat{background:var(--panel-2);border:1px solid var(--panel-border);border-radius:11px;padding:10px 16px;text-align:center;min-width:120px;}
+  .recap-stat .nm{display:block;font-size:15px;color:white;margin-bottom:4px;font-weight:600;}
+  .recap-stat .figures{font:700 13px 'Inter',sans-serif;display:flex;gap:8px;justify-content:center;}
+  .recap-stat .figures b{font-family:'Space Grotesk',sans-serif;font-size:15px;}
+  .recap-stat .figures .g{color:var(--ok);} .recap-stat .figures .r{color:var(--bad);} .recap-stat .figures .s{color:var(--ink-dim);}
+  .recap-list{display:grid;gap:14px;max-width:760px;margin:0 auto;}
+  .recap-card{background:var(--panel-2);border:1px solid var(--panel-border);border-radius:13px;padding:16px 18px;}
+  .recap-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+  .recap-no{font:700 13px 'Space Grotesk',sans-serif;color:var(--gold);}
+  .recap-tema{font-weight:600;font-size:15px;flex:1;min-width:120px;}
+  .recap-bobot{font-size:12px;color:var(--ink-dim);white-space:nowrap;}
+  .recap-key{font-size:13px;color:var(--ok);margin:2px 0 10px;}
+  .recap-key b{color:var(--gold);}
+  .recap-teams{display:grid;gap:6px;}
+  .recap-team-row{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--panel-border);border-radius:8px;padding:7px 10px;font-size:13px;}
+  .recap-team-row.correct{border-color:rgba(47,191,110,.5);background:rgba(47,191,110,.08);}
+  .recap-team-row.wrong{border-color:rgba(224,56,79,.5);background:rgba(224,56,79,.08);}
+  .recap-ans{color:var(--ink-dim);font-size:12px;}
+  .recap-badge{font:700 11px 'Inter',sans-serif;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+  .recap-badge.correct{background:var(--ok);color:#06240f;}
+  .recap-badge.wrong{background:var(--bad);color:#2b0509;}
+  .recap-badge.skip{background:#4e5480;color:#fff;}
+  .recap-delta{font:700 14px 'Space Grotesk',sans-serif;min-width:44px;text-align:right;}
+  .recap-delta.plus{color:var(--ok);} .recap-delta.minus{color:var(--bad);} .recap-delta.zero{color:var(--ink-dim);}
+
+  /* ===== ronde 2 — papan kotak ===== */
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  @media(max-width:640px){.grid{grid-template-columns:repeat(2,1fr);}}
+  .card-tile{aspect-ratio:1;border-radius:14px;background:linear-gradient(155deg,var(--card-back-2),var(--card-back));
+    border:1px solid #3d4590;box-shadow:0 6px 14px rgba(0,0,0,.35);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;padding:10px;text-align:center;transition:transform .15s,box-shadow .15s;}
+  .card-tile.is-clickable{cursor:pointer;}
+  .card-tile.is-clickable:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 12px 24px rgba(0,0,0,.5);}
+  .card-tile.is-active{border-color:var(--gold);box-shadow:0 0 0 3px rgba(240,201,107,.3),0 10px 22px rgba(0,0,0,.5);}
+  .card-num{font:700 clamp(30px,8vw,60px) 'Space Grotesk',sans-serif;color:var(--gold);}
+  .fail-dots{display:flex;gap:4px;margin-top:8px;}
+  .fail-dot{width:6px;height:6px;border-radius:50%;background:#4d5390;}
+  .fail-dot.used{background:var(--bad);}
+  .card-tile.status-solved{border:none;}
+  .card-tile.status-solved[data-t="0"]{background:linear-gradient(155deg,#ff5b6e,var(--t0));}
+  .card-tile.status-solved[data-t="1"]{background:linear-gradient(155deg,#56a4ff,var(--t1));}
+  .card-tile.status-solved[data-t="2"]{background:linear-gradient(155deg,#4fdc8d,var(--t2));}
+  .solved-check{font-size:30px;letter-spacing:1px;line-height:1;-webkit-text-stroke:2px #000;paint-order:stroke fill;}
+  .solved-name{font-weight:700;letter-spacing:1px;font-size:24px;margin-top:4px;color:#fff;-webkit-text-stroke:2px #000;paint-order:stroke fill;}
+  .card-tile.status-hangus{background:repeating-linear-gradient(135deg,var(--hangus),var(--hangus) 8px,#3a3634 8px,#3a3634 16px);border:1px solid #635b57;}
+  .hangus-label{font-size:24px;font-weight:700;letter-spacing:1px;color:#d8cfc9;margin-top:4px;}
+  .rebut-pill{position:absolute;top:6px;right:6px;background:var(--bad);color:#fff;font:700 9px 'Inter',sans-serif;
+    padding:2px 7px;border-radius:999px;letter-spacing:.4px;}
+  .card-tile{position:relative;}
+
+  /* ===== popup soal ronde 2 ===== */
+  @keyframes qModalIn{from{opacity:0;transform:scale(.9) translateY(10px);}to{opacity:1;transform:none;}}
+  .q-overlay{position:fixed;inset:0;background:rgba(5,7,20,.86);display:none;align-items:center;justify-content:center;padding:18px;z-index:75;}
+  .q-overlay.show{display:flex;}
+  .q-modal{
+    background:linear-gradient(165deg,var(--panel) 0%,var(--panel-2) 100%);
+    border:1px solid var(--gold-deep); border-radius:20px; padding:clamp(20px,4vw,34px);
+    max-width:640px; width:100%; max-height:88vh; overflow-y:auto;
+    box-shadow:0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(240,201,107,.08);
+    animation:qModalIn .3s cubic-bezier(.2,.85,.3,1) both;
+  }
+  @media (prefers-reduced-motion: reduce){ .q-modal{animation:none;} }
+  .q-modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;}
+  .q-modal-num{font:700 13px 'Space Grotesk',sans-serif;color:var(--gold);letter-spacing:.5px;}
+  .q-modal-poin{font:700 13px 'Inter',sans-serif;color:var(--ink-dim);}
+  .q-modal-rebut{
+    margin:8px 0 4px;border-radius:8px;padding:6px 12px;text-align:center;
+    background:rgba(224,56,79,.16);border:1px solid rgba(224,56,79,.5);
+    font:700 12px 'Inter',sans-serif;letter-spacing:.5px;color:#ff98a6;
+  }
+  .q-modal-text{font-size:clamp(17px,2.6vw,22px);line-height:1.5;margin:14px 0 20px;text-align:center;}
+  .q-modal-key-toggle{font-size:12px;color:var(--ink-dim);background:none;border:1px solid var(--panel-border);
+    border-radius:7px;padding:5px 10px;cursor:pointer;display:block;margin:0 auto 14px;}
+  .q-modal-key{font-size:13px;color:var(--gold);text-align:center;margin:0 0 14px;}
+  .q-modal-teams{display:grid;gap:10px;}
+  .q-modal-row{display:flex;align-items:center;gap:10px;background:var(--panel-2);border:1px solid var(--panel-border);
+    border-radius:12px;padding:11px 14px;transition:opacity .2s;}
+  .q-modal-row.off{opacity:.3;}
+  .q-modal-row .nm{flex:1;font-weight:700;font-size:15px;}
+  .q-modal-row .nm.strike{text-decoration:line-through;}
+  .qbtn{border:none;border-radius:9px;width:42px;height:42px;font:700 17px 'Inter',sans-serif;cursor:pointer;}
+  .qbtn-yes{background:var(--ok);color:#06240f;} .qbtn-no{background:var(--bad);color:#2b0509;}
+  .qbtn:disabled{background:#3a4070;color:#7d83ad;cursor:default;}
+  .q-modal-actions{display:flex;justify-content:center;margin-top:20px;}
+
+  /* ===== klasemen ===== */
+  .podium{display:grid;gap:12px;max-width:600px;margin:0 auto;}
+  .lb-row{display:flex;align-items:center;gap:14px;border-radius:13px;padding:16px 18px;background:var(--panel-2);border:1px solid var(--panel-border);}
+  .lb-row.rank1{border-color:var(--gold);background:linear-gradient(90deg,rgba(240,201,107,.15),var(--panel-2) 70%);}
+  .lb-rank{font:700 26px 'Space Grotesk',sans-serif;color:var(--gold);width:34px;text-align:center;}
+  .lb-row:not(.rank1) .lb-rank{color:var(--ink-dim);}
+  .lb-name{flex:1;font-weight:700;font-size:16px;}
+  .lb-bar{height:6px;border-radius:3px;margin-top:7px;background:#313868;overflow:hidden;}
+  .lb-bar i{display:block;height:100%;border-radius:3px;transition:width .8s cubic-bezier(.2,.8,.2,1);}
+  @keyframes lbRowIn{from{opacity:0;transform:translateX(-14px);}to{opacity:1;transform:none;}}
+  .lb-enter{animation:lbRowIn .4s cubic-bezier(.2,.8,.3,1) both;animation-delay:calc(var(--d,0)*90ms);}
+  @media (prefers-reduced-motion: reduce){ .lb-enter{animation:none;} .lb-bar i{transition:none;} }
+  .lb-score{font:700 26px 'Space Grotesk',sans-serif;}
+  .lb-sub{font-size:11px;color:var(--ink-dim);margin-top:3px;}
+  .lb-edit{width:92px;background:var(--panel);border:1px solid var(--gold-deep);border-radius:8px;color:var(--ink);font:700 18px 'Space Grotesk',sans-serif;padding:7px 9px;text-align:right;}
+
+  /* ===== soundboard ===== */
+  .soundbar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:10px;align-items:center;z-index:70;
+    background:rgba(20,24,52,.94);border:1px solid var(--panel-border);border-radius:999px;padding:8px 10px;
+    backdrop-filter:blur(8px);box-shadow:0 10px 30px rgba(0,0,0,.45);}
+  .sfx{border:none;border-radius:999px;padding:10px 18px;cursor:pointer;font:700 14px 'Inter',sans-serif;display:flex;align-items:center;gap:8px;}
+  .sfx-win{background:linear-gradient(135deg,#ffd76e,#f0a93f);color:#3a2405;}
+  .sfx-sad{background:linear-gradient(135deg,#6f7ba8,#4b5070);color:#eef0ff;}
+  .sfx-shush{background:linear-gradient(135deg,#7fd4d9,#3f8f96);color:#062426;}
+  .sfx em{font-style:normal;font-size:16px;}
+  .mute-btn{background:none;border:1px solid var(--panel-border);color:var(--ink-dim);border-radius:999px;width:36px;height:36px;cursor:pointer;font-size:15px;}
+  .mute-btn.muted{color:var(--bad);border-color:var(--bad);}
+  @media(max-width:520px){.sfx{padding:9px 13px;font-size:13px;}}
+  #fx{position:fixed;inset:0;pointer-events:none;z-index:90;}
+
+  @keyframes shushDim{0%{opacity:0;}18%{opacity:1;}72%{opacity:1;}100%{opacity:0;}}
+  @keyframes shushPop{0%{transform:scale(.55);opacity:0;}55%{transform:scale(1.08);opacity:1;}100%{transform:scale(1);opacity:1;}}
+  .shush-flash{position:fixed;inset:0;z-index:96;display:flex;align-items:center;justify-content:center;
+    pointer-events:none;background:rgba(6,8,20,.58);animation:shushDim 1.7s ease both;}
+  .shush-flash span{font-size:min(28vw,150px);line-height:1;filter:drop-shadow(0 10px 30px rgba(0,0,0,.6));
+    animation:shushPop .5s cubic-bezier(.2,.9,.3,1) both;}
+  @media (prefers-reduced-motion: reduce){.shush-flash,.shush-flash span{animation:none;}}
+
+  /* ===== modal ===== */
+  .overlay{position:fixed;inset:0;background:rgba(5,7,20,.8);display:none;align-items:center;justify-content:center;padding:18px;z-index:80;}
+  .overlay.show{display:flex;}
+  .modal{background:var(--panel);border:1px solid var(--panel-border);border-radius:14px;padding:20px;max-width:700px;width:100%;max-height:86vh;overflow-y:auto;}
+  .modal h2{font:700 19px 'Space Grotesk',sans-serif;margin:0 0 4px;color:var(--gold);}
+  .modal .sub{color:var(--ink-dim);font-size:13px;margin:0 0 14px;}
+  .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+  .tab{background:var(--panel-2);border:1px solid var(--panel-border);color:var(--ink-dim);font:600 13px 'Inter',sans-serif;padding:7px 14px;border-radius:8px;cursor:pointer;}
+  .tab.active{background:var(--gold);border-color:var(--gold);color:#221605;}
+  .edit-row{border-top:1px solid var(--panel-border);padding:12px 0;display:flex;gap:10px;}
+  .edit-row .num{font:700 14px 'Space Grotesk',sans-serif;color:var(--gold);width:24px;flex-shrink:0;padding-top:8px;}
+  .edit-row .fields{flex:1;display:flex;flex-direction:column;gap:6px;}
+  .row2{display:flex;gap:6px;} .row2 .grow{flex:1;}
+  .opt-in{display:flex;align-items:center;gap:6px;}
+  .opt-in .lt{font:700 13px 'Space Grotesk',sans-serif;color:var(--gold);width:14px;}
+  .opt-in input[type="radio"]{accent-color:var(--ok);}
+  textarea,.modal input[type="text"],.modal input[type="number"],.modal input[type="url"]{
+    width:100%;background:var(--panel-2);border:1px solid var(--panel-border);border-radius:8px;
+    color:var(--ink);font:400 13px 'Inter',sans-serif;padding:8px 10px;resize:vertical;}
+  textarea{min-height:42px;}
+  input::placeholder,textarea::placeholder{color:#666ca0;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;position:sticky;bottom:-20px;background:var(--panel);padding:12px 0 2px;}
+  .data-block{border-top:1px solid var(--panel-border);padding:14px 0;}
+  .data-block h4{margin:0 0 4px;font:700 14px 'Inter',sans-serif;}
+  .data-block p{margin:0 0 10px;font-size:12.5px;color:var(--ink-dim);line-height:1.5;}
+  .data-btns{display:flex;gap:8px;flex-wrap:wrap;}
+  .status-line{font-size:12px;color:var(--ink-dim);margin-top:8px;}
+  .status-line.good{color:var(--ok);} .status-line.bad{color:var(--bad);}
+  .hist-row{border-top:1px solid var(--panel-border);padding:11px 0;font-size:13px;}
+  .hist-names{display:flex;gap:12px;flex-wrap:wrap;}
+  .hist-names b{color:var(--gold);font-family:'Space Grotesk',sans-serif;}
+  .when{color:var(--ink-dim);font-size:12px;margin-top:3px;}
+  .sync{font-size:11px;color:var(--ink-dim);text-align:center;margin-top:24px;}
+  .sync b{color:var(--gold);font-weight:600;}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+
+<div class="wrap">
+  <div class="kop">
+    <h1>BABAK FINAL LOMBA CERDAS CERMAT ROHANI 2026</h1>
+    <div class="paroki">Paroki Santa Odilia Cicadas Bandung</div>
+  </div>
+
+  <div class="topbar">
+    <span class="round-pill" id="roundPill">Persiapan</span>
+    <div class="tools">
+      <button class="icon-btn" id="btnEdit">Edit Soal</button>
+      <button class="icon-btn" id="btnData">Data &amp; CSV</button>
+      <button class="icon-btn" id="btnHistory">Riwayat</button>
+      <button class="icon-btn" id="btnReset">Reset</button>
+    </div>
+  </div>
+
+  <div class="scoreboard" id="scoreboard"></div>
+  <div id="screen"></div>
+  <div class="sync" id="syncNote"></div>
+</div>
+
+<div class="q-overlay" id="qOverlay"><div class="q-modal" id="qModal"></div></div>
+
+<div class="soundbar">
+  <button class="sfx sfx-win" id="sfxWin"><em>🎉</em> Meriah</button>
+  <button class="sfx sfx-sad" id="sfxSad"><em>😢</em> Sedih</button>
+  <button class="sfx sfx-shush" id="sfxShush"><em>🤫</em> Tenang</button>
+  <button class="mute-btn" id="btnMute" title="Bisukan">🔊</button>
+</div>
+
+<div class="overlay" id="editOverlay"><div class="modal">
+  <h2>Edit Soal</h2>
+  <p class="sub">Tersimpan ke server bila tersambung, dan selalu dicadangkan di perangkat ini.</p>
+  <div class="tabs">
+    <button class="tab active" data-tab="r1">Ronde 1 — 10 soal bobot</button>
+    <button class="tab" data-tab="r2">Ronde 2 — 16 kotak</button>
+  </div>
+  <div id="editBody"></div>
+  <div class="modal-actions">
+    <button class="btn btn-ghost" id="btnCancelEdit">Batal</button>
+    <button class="btn btn-primary" id="btnSaveEdit">Simpan</button>
+  </div>
+</div></div>
+
+<div class="overlay" id="dataOverlay"><div class="modal" style="max-width:560px;">
+  <h2>Data &amp; CSV</h2>
+  <p class="sub">Berkas memakai pemisah titik koma dan BOM UTF-8, langsung rapi di Excel.</p>
+  <div class="data-block">
+    <h4>Ekspor</h4>
+    <p>Unduh bank soal, hasil permainan, atau riwayat sesi.</p>
+    <div class="data-btns">
+      <button class="btn btn-ghost btn-sm" id="expSoal">Bank soal</button>
+      <button class="btn btn-ghost btn-sm" id="expHasil">Hasil permainan</button>
+      <button class="btn btn-ghost btn-sm" id="expRiwayat">Riwayat sesi</button>
+    </div>
+  </div>
+  <div class="data-block">
+    <h4>Impor bank soal</h4>
+    <p>Ekspor dulu untuk memperoleh contoh formatnya, isi di Excel, simpan sebagai CSV, lalu unggah di sini.</p>
+    <label class="btn btn-ghost btn-sm" style="display:inline-block;">
+      Pilih berkas CSV<input type="file" id="impSoal" accept=".csv,text/csv" hidden>
+    </label>
+    <div class="status-line" id="impStatus"></div>
+  </div>
+  <div class="data-block">
+    <h4>Server MySQL</h4>
+    <p>Alamat server Express, misalnya <code>http://localhost:3000</code>. Kosongkan untuk memakai penyimpanan lokal saja.</p>
+    <input type="url" id="apiBase" placeholder="http://localhost:3000">
+    <div class="data-btns" style="margin-top:8px;">
+      <button class="btn btn-ghost btn-sm" id="testApi">Uji koneksi</button>
+      <button class="btn btn-ghost btn-sm" id="pullApi">Ambil dari server</button>
+    </div>
+    <div class="status-line" id="apiStatus"></div>
+  </div>
+  <div class="modal-actions"><button class="btn btn-primary" id="btnCloseData">Tutup</button></div>
+</div></div>
+
+<div class="overlay" id="histOverlay"><div class="modal" style="max-width:520px;">
+  <h2>Riwayat Permainan</h2>
+  <p class="sub">Hasil akhir sesi-sesi yang sudah disimpan.</p>
+  <div id="histBody"></div>
+  <div class="modal-actions"><button class="btn btn-ghost" id="btnCloseHist">Tutup</button></div>
+</div></div>
+
+<div class="overlay" id="resetOverlay"><div class="modal" style="max-width:400px;">
+  <h2>Reset permainan?</h2>
+  <p class="sub">Skor dan status kedua ronde kembali ke awal. Soal yang sudah diisi tetap tersimpan.</p>
+  <div class="modal-actions">
+    <button class="btn btn-ghost" id="btnCancelReset">Batal</button>
+    <button class="btn btn-danger" id="btnConfirmReset">Ya, reset</button>
+  </div>
+</div></div>
+
+<script>
+(function(){
+  "use strict";
+  const TEAMS=3, R1_COUNT=10, R2_COUNT=16, LETTERS=['A','B','C','D'];
+  const LS_KEY='lcc2026.state', LS_HIST='lcc2026.hist', LS_API='lcc2026.api', LS_MUTE='lcc2026.mute';
+  const TTL = 2*24*60*60*1000;                 // cadangan lokal bertahan 2 hari
+  const DEFAULT_BOBOT=[10,10,20,20,30,30,40,40,50,50];
+  const el=id=>document.getElementById(id);
+  const screenEl=()=>el('screen');
+  const clone=o=>JSON.parse(JSON.stringify(o));
+  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  /* ================= STATE ================= */
+  function blankState(){
+    return {
+      sessionId:null, rev:0, screen:'home',
+      teams:[{name:'Kelompok 1',score:0},{name:'Kelompok 2',score:0},{name:'Kelompok 3',score:0}],
+      r2Points:10,
+      r1:Array.from({length:R1_COUNT},(_,i)=>({tema:'',bobot:DEFAULT_BOBOT[i],soal:'',opsi:['','','',''],kunci:0})),
+      r2:Array.from({length:R2_COUNT},()=>({soal:'',kunci:''})),
+      play:{
+        r1Index:0, r1Phase:'tema',
+        r1Rec:Array.from({length:R1_COUNT},()=>({decisions:[null,null,null],picks:[null,null,null],scored:false})),
+        r2Cards:Array.from({length:R2_COUNT},()=>({status:'closed',solvedBy:null,wrong:[]})),
+        openCard:null, keyVisible:{}
+      },
+      pendingAdjustments:[]
+    };
+  }
+  let S=blankState(), history=[], apiBase='', apiOk=null;
+  let lastScreen=null, editTab='r1', editDraft=null, lbEditing=false, recapListOpen=false;
+
+  function normalize(d){
+    const b=blankState(), o={...b,...d};
+    o.teams=(d.teams&&d.teams.length===TEAMS)?d.teams:b.teams;
+    // Pengaman tipe data: skor selalu dipaksa jadi Number, apa pun sumbernya
+    // (server, cadangan lokal lama, atau CSV), supaya "+=" tidak pernah
+    // berubah jadi penyambungan teks seperti "01010-203010".
+    o.teams=o.teams.map(t=>({...t, score:Number(t.score)||0}));
+    o.r1=(d.r1&&d.r1.length===R1_COUNT)?d.r1:b.r1;
+    o.r1=o.r1.map(q=>({...q, bobot:Number(q.bobot)||0}));
+    o.r2=(d.r2&&d.r2.length===R2_COUNT)?d.r2:b.r2;
+    o.r2Points=Number(d.r2Points)||b.r2Points;
+    o.play={...b.play,...(d.play||{})};
+    if(!o.play.r1Rec||o.play.r1Rec.length!==R1_COUNT) o.play.r1Rec=b.play.r1Rec;
+    if(!o.play.r2Cards||o.play.r2Cards.length!==R2_COUNT) o.play.r2Cards=b.play.r2Cards;
+    if(!o.play.keyVisible) o.play.keyVisible={};
+    if(!Array.isArray(o.pendingAdjustments)) o.pendingAdjustments=[];
+    return o;
+  }
+
+  /* ================= SUARA ================= */
+  const Sound=(function(){
+    let ctx=null, muted=false;
+    try{ muted=localStorage.getItem(LS_MUTE)==='1'; }catch(e){}
+    function ac(){
+      if(!ctx){ const C=window.AudioContext||window.webkitAudioContext; if(!C) return null; ctx=new C(); }
+      if(ctx.state==='suspended') ctx.resume();
+      return ctx;
+    }
+    function tone(a,{freq,start,dur,type='sine',gain=.2,slideTo=null,detune=0}){
+      const o=a.createOscillator(), g=a.createGain();
+      o.type=type; o.frequency.setValueAtTime(freq,start);
+      if(detune) o.detune.setValueAtTime(detune,start);
+      if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo,start+dur);
+      g.gain.setValueAtTime(.0001,start);
+      g.gain.exponentialRampToValueAtTime(gain,start+.02);
+      g.gain.exponentialRampToValueAtTime(.0001,start+dur);
+      o.connect(g); g.connect(a.destination); o.start(start); o.stop(start+dur+.05);
+    }
+    function noise(a,{start,dur,gain=.12,hp=1800}){
+      const n=Math.floor(a.sampleRate*dur), buf=a.createBuffer(1,n,a.sampleRate), d=buf.getChannelData(0);
+      for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n);
+      const src=a.createBufferSource(); src.buffer=buf;
+      const f=a.createBiquadFilter(); f.type='highpass'; f.frequency.value=hp;
+      const g=a.createGain(); g.gain.setValueAtTime(gain,start);
+      g.gain.exponentialRampToValueAtTime(.0001,start+dur);
+      src.connect(f); f.connect(g); g.connect(a.destination); src.start(start);
+    }
+    return {
+      isMuted:()=>muted,
+      toggleMute(){ muted=!muted; try{localStorage.setItem(LS_MUTE,muted?'1':'0');}catch(e){} return muted; },
+      win(){
+        if(muted) return; const a=ac(); if(!a) return; const t=a.currentTime+.02;
+        // tanduk fanfare naik
+        [392.00,523.25,659.25,783.99,1046.50].forEach((f,i)=>{
+          tone(a,{freq:f,start:t+i*.075,dur:.22,type:'triangle',gain:.30});
+          tone(a,{freq:f*2,start:t+i*.075,dur:.16,type:'sine',gain:.12});
+        });
+        // akor kemenangan menggelegar + gemerincing lonceng naik
+        [523.25,659.25,783.99,1046.50,1318.51].forEach((f,i)=>
+          tone(a,{freq:f,start:t+.42,dur:1.3,type:'sawtooth',gain:.11,detune:i%2?7:-7}));
+        tone(a,{freq:130.81,start:t+.42,dur:1.3,type:'sine',gain:.24});
+        for(let i=0;i<10;i++) tone(a,{freq:1567.98+i*220,start:t+.44+i*.045,dur:.5,type:'sine',gain:.05});
+        // riuh tepuk tangan/sorai penonton dari lapisan derau
+        for(let i=0;i<26;i++){
+          noise(a,{start:t+.36+Math.random()*1.3, dur:.12+Math.random()*.1, gain:.06+Math.random()*.05, hp:2400+Math.random()*2600});
+        }
+        noise(a,{start:t+.40,dur:1.5,gain:.05,hp:900});
+        // dua "tada" sela di ujung untuk penekanan
+        [1760,2093.00].forEach((f,i)=>tone(a,{freq:f,start:t+1.55+i*.11,dur:.28,type:'triangle',gain:.22}));
+      },
+      sad(){
+        if(muted) return; const a=ac(); if(!a) return; let at=a.currentTime+.02;
+        [[311.13,293.66,.30],[277.18,261.63,.30],[246.94,233.08,.30],[220,155.56,.85]].forEach(([f1,f2,d])=>{
+          const o=a.createOscillator(), g=a.createGain(), lp=a.createBiquadFilter();
+          o.type='sawtooth'; lp.type='lowpass';
+          lp.frequency.setValueAtTime(1400,at); lp.frequency.exponentialRampToValueAtTime(420,at+d);
+          o.frequency.setValueAtTime(f1,at); o.frequency.exponentialRampToValueAtTime(f2,at+d);
+          const vib=a.createOscillator(), vg=a.createGain();
+          vib.frequency.value=5.2; vg.gain.value=5; vib.connect(vg); vg.connect(o.frequency);
+          g.gain.setValueAtTime(.0001,at); g.gain.exponentialRampToValueAtTime(.26,at+.05);
+          g.gain.setValueAtTime(.26,at+d*.7); g.gain.exponentialRampToValueAtTime(.0001,at+d);
+          o.connect(lp); lp.connect(g); g.connect(a.destination);
+          o.start(at); o.stop(at+d+.05); vib.start(at); vib.stop(at+d+.05);
+          at+=d*.92;
+        });
+      },
+      /* lonceng perhatian ganda + desisan "sshh" panjang — untuk menenangkan suasana */
+      shush(){
+        if(muted) return; const a=ac(); if(!a) return; const t=a.currentTime+.02;
+        [1568.0,2093.0].forEach((f,i)=>{
+          tone(a,{freq:f,start:t+i*.17,dur:.24,type:'triangle',gain:.24});
+          tone(a,{freq:f*1.5,start:t+i*.17,dur:.18,type:'sine',gain:.08});
+        });
+        const dur=1.5, start=t+.42;
+        const n=Math.floor(a.sampleRate*dur), buf=a.createBuffer(1,n,a.sampleRate), d=buf.getChannelData(0);
+        for(let i=0;i<n;i++) d[i]=Math.random()*2-1;
+        const src=a.createBufferSource(); src.buffer=buf;
+        const bp=a.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=4800; bp.Q.value=.6;
+        const g=a.createGain();
+        g.gain.setValueAtTime(.0001,start);
+        g.gain.exponentialRampToValueAtTime(.24,start+.18);
+        g.gain.setValueAtTime(.24,start+dur-.55);
+        g.gain.exponentialRampToValueAtTime(.0001,start+dur);
+        src.connect(bp); bp.connect(g); g.connect(a.destination);
+        src.start(start); src.stop(start+dur+.05);
+      }
+    };
+  })();
+
+  /* ========= konfeti: hanya dari tombol operator ========= */
+  const FX=(function(){
+    const c=el('fx'), x=c.getContext('2d'); let ps=[], raf=null;
+    function size(){ c.width=innerWidth*devicePixelRatio; c.height=innerHeight*devicePixelRatio; x.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); }
+    size(); addEventListener('resize',size);
+    let clock=0;
+    function loop(){
+      clock++;
+      x.clearRect(0,0,innerWidth,innerHeight);
+      ps=ps.filter(p=>p.life>0);
+      ps.forEach(p=>{
+        p.vy+=p.grav; p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.life--;
+        x.save(); x.translate(p.x,p.y);
+        x.globalAlpha=Math.min(1,p.life/26);
+        if(p.kind==='ribbon'){
+          // pita panjang yang melambai, jatuh lebih lambat dari confetti kotak
+          const wobble=Math.sin(clock*0.09 + p.seed)*p.sway;
+          x.rotate(p.rot + wobble*0.02);
+          x.strokeStyle=p.col; x.lineWidth=p.w; x.lineCap='round';
+          x.beginPath(); x.moveTo(0,-p.h/2);
+          x.quadraticCurveTo(wobble, 0, 0, p.h/2);
+          x.stroke();
+        }else{
+          x.rotate(p.rot);
+          x.fillStyle=p.col; x.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+        }
+        x.restore();
+      });
+      if(ps.length) raf=requestAnimationFrame(loop); else { raf=null; x.clearRect(0,0,innerWidth,innerHeight); }
+    }
+    return { confetti(n=140){
+      const cols=['#f0c96b','#e0384f','#2e8bf0','#2fbf6e','#ffffff','#b07cff','#ff9ecf'];
+      // ledakan dari tiga titik supaya memenuhi layar, bukan hanya tengah
+      const origins=[.22,.5,.78];
+      origins.forEach(ox=>{
+        for(let i=0;i<Math.round(n/origins.length);i++){
+          ps.push({kind:'rect', x:innerWidth*ox+(Math.random()-.5)*40, y:innerHeight*.24,
+            vx:(Math.random()-.5)*13, vy:-Math.random()*14-5, grav:.26,
+            w:5+Math.random()*7, h:8+Math.random()*10,
+            rot:Math.random()*6.28, vr:(Math.random()-.5)*.35, col:cols[(Math.random()*cols.length)|0],
+            life:85+Math.random()*55});
+        }
+      });
+      // rumbai/pita panjang yang melambai turun perlahan — inilah yang bikin "ramai"
+      const ribbonN = Math.round(n*0.35);
+      for(let i=0;i<ribbonN;i++){
+        ps.push({kind:'ribbon', x:innerWidth*(.5+(Math.random()-.5)*.9), y:-20-Math.random()*140,
+          vx:(Math.random()-.5)*2.2, vy:1.6+Math.random()*2.2, grav:.012,
+          w:3+Math.random()*3, h:26+Math.random()*30,
+          rot:(Math.random()-.5)*.6, vr:(Math.random()-.5)*.01,
+          sway:14+Math.random()*22, seed:Math.random()*10,
+          col:cols[(Math.random()*cols.length)|0],
+          life:170+Math.random()*90});
+      }
+      if(!raf) raf=requestAnimationFrame(loop);
+    }};
+  })();
+
+  function shushFlash(){
+    const d=document.createElement('div');
+    d.className='shush-flash';
+    d.innerHTML='<span>🤫</span>';
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(),1700);
+  }
+
+  /* ================= PENYIMPANAN ================= */
+  function lsSave(){
+    try{ localStorage.setItem(LS_KEY, JSON.stringify({savedAt:Date.now(), state:S})); }catch(e){}
+  }
+  function lsLoad(){
+    try{
+      const raw=localStorage.getItem(LS_KEY); if(!raw) return null;
+      const box=JSON.parse(raw);
+      if(!box || !box.state) return null;
+      if(Date.now() - (box.savedAt||0) > TTL){ localStorage.removeItem(LS_KEY); return null; }
+      return box.state;
+    }catch(e){ return null; }
+  }
+  function lsHistSave(){
+    try{ localStorage.setItem(LS_HIST, JSON.stringify({savedAt:Date.now(), items:history})); }catch(e){}
+  }
+  function lsHistLoad(){
+    try{
+      const raw=localStorage.getItem(LS_HIST); if(!raw) return [];
+      const box=JSON.parse(raw);
+      if(Date.now()-(box.savedAt||0) > TTL){ localStorage.removeItem(LS_HIST); return []; }
+      return box.items||[];
+    }catch(e){ return []; }
+  }
+  function sisaHari(){
+    try{
+      const box=JSON.parse(localStorage.getItem(LS_KEY)||'{}');
+      const sisa=TTL-(Date.now()-(box.savedAt||Date.now()));
+      const jam=Math.max(0,Math.round(sisa/3600000));
+      return jam>=24 ? Math.round(jam/24)+' hari' : jam+' jam';
+    }catch(e){ return '2 hari'; }
+  }
+
+  let apiTimer=null;
+  function persist(){
+    S.rev=(S.rev||0)+1;
+    lsSave();
+    if(!apiBase) { renderSync(); return; }
+    clearTimeout(apiTimer);
+    apiTimer=setTimeout(async()=>{
+      try{
+        const r=await fetch(apiBase+'/api/state',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(S)});
+        if(r.ok){ const j=await r.json(); if(j.sessionId) S.sessionId=j.sessionId; S.pendingAdjustments=[]; apiOk=true; }
+        else apiOk=false;
+      }catch(e){ apiOk=false; }
+      renderSync();
+    },400);
+  }
+  async function apiGet(p){
+    const r=await fetch(apiBase+p);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return r.json();
+  }
+  function renderSync(){
+    const n=el('syncNote');
+    if(apiOk===true) n.innerHTML='Tersambung ke server';
+    else if(apiBase) n.innerHTML='Server <b>tidak terjangkau</b> — permainan berjalan dari penyimpanan lokal, bertahan '+sisaHari()+' lagi.';
+    else n.innerHTML='Mode lokal. Data tersimpan di perangkat ini dan bertahan <b>'+sisaHari()+'</b> lagi. Sambungkan server lewat menu Data.';
+  }
+
+  /* ================= PAPAN SKOR ================= */
+  let scoreBumps=new Set(); // slot yang barusan mengalami perubahan skor — dipakai sekali lalu dibuang
+  function bumpScore(slot){ scoreBumps.add(slot); }
+
+  function renderTop(){
+    const labels={home:'Persiapan',r1:'Ronde 1 — Pick Me Up',r1recap:'Rekap Ronde 1',lb:'Klasemen',r2:'Ronde 2 — Number Blocks',final:'Hasil Akhir'};
+    el('roundPill').textContent=labels[S.screen]||'';
+    const max=Math.max(...S.teams.map(t=>Number(t.score)||0));
+    el('scoreboard').innerHTML=S.teams.map((t,i)=>{
+      const skor=Number(t.score)||0;
+      const kena=scoreBumps.has(i);
+      return `<div class="score-chip ${skor===max&&max!==0?'lead':''} ${kena?'bump':''}" data-t="${i}">
+        <span class="score-dot"></span>
+        <div class="score-meta">
+          <span class="score-name" contenteditable="true" data-name="${i}">${esc(t.name)}</span>
+          <span class="score-num ${kena?'bump':''}">${skor}</span>
+        </div></div>`;
+    }).join('');
+    scoreBumps.clear();
+    el('scoreboard').querySelectorAll('[data-name]').forEach(n=>{
+      n.addEventListener('blur',e=>{
+        const i=+e.target.getAttribute('data-name');
+        const v=e.target.textContent.trim()||('Kelompok '+(i+1));
+        if(v!==S.teams[i].name){ S.teams[i].name=v; persist(); renderAll(); }
+      });
+      n.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();e.target.blur();} });
+    });
+  }
+
+  /* ================= LAYAR ================= */
+  function renderAll(){ renderTop(); renderScreen(); renderSync(); }
+  function paint(html){
+    const ganti = lastScreen !== S.screen;
+    screenEl().innerHTML = `<div class="${ganti?'page-enter':''}">${html}</div>`;
+    lastScreen = S.screen;
+  }
+  function renderScreen(){
+    const s=S.screen;
+    if(s==='home') return renderHome();
+    if(s==='r1') return renderR1();
+    if(s==='r1recap') return renderR1Recap();
+    if(s==='lb') return renderLeaderboard(false);
+    if(s==='r2') return renderR2();
+    if(s==='final') return renderLeaderboard(true);
+  }
+
+  function renderHome(){
+    const f1=S.r1.filter(q=>q.soal.trim()).length, f2=S.r2.filter(q=>q.soal.trim()).length;
+    paint(`<div class="stage center">
+        <h2 style="font:700 clamp(22px,4vw,30px) 'Space Grotesk',sans-serif;margin:0 0 8px;">Siap memulai?</h2>
+        <div class="home-grid">
+          <div class="home-card"><h3>Ronde 1 — Pick Me Up</h3>
+            <p>Tema dan bobot tampil lebih dulu. Tiap kelompok memilih menjawab atau lewat. Benar dapat poin sebesar bobot, salah dikurangi sebesar bobot. Bagi yang lewat, poin tidak berubah.</p>
+          </div>
+          <div class="home-card"><h3>Ronde 2 — Number Blocks</h3>
+            <p>Kelompok memilih kotak. Jawaban benar langsung mendapat poin. Jawaban salah membuat soal direbutkan ke kelompok lain; bila jawban tetap salah, soal hangus.</p>
+            <p style="margin-top:8px;color:var(--gold);">${S.r2Points} poin per kotak</p></div>
+        </div>
+        <div class="stage-actions">
+          <button class="btn btn-primary" data-go="r1">Mulai Ronde 1</button>
+        </div></div>`);
+    screenEl().querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{
+      S.screen=b.getAttribute('data-go'); persist(); renderAll(); }));
+  }
+
+  /* ---- Ronde 1 ---- */
+  function renderR1(){
+    const i=S.play.r1Index, q=S.r1[i], rec=S.play.r1Rec[i], fase=S.play.r1Phase;
+    const pips=S.r1.map((_,k)=>`<span class="pip ${k<i?'done':''} ${k===i?'now':''}"></span>`).join('');
+    let body='';
+
+    if(fase==='tema'){
+      const siap=rec.decisions.every(d=>d!==null);
+      body=`<div class="theme-box">
+          <div class="theme-label">Soal ${i+1} dari ${R1_COUNT}</div>
+          <h2 class="theme-name">${q.tema.trim()?esc(q.tema):'Tema belum diisi'}</h2>
+          <div class="bobot">Bobot<b>${q.bobot}</b><span>poin</span></div>
+        </div>
+        <div class="row-list">${S.teams.map((t,ti)=>`
+          <div class="lrow" data-t="${ti}"><span class="dot"></span><span class="nm">${esc(t.name)}</span>
+            <button class="choice ${rec.decisions[ti]==='jawab'?'sel-jawab':''}" data-dec="jawab" data-ti="${ti}">Jawab</button>
+            <button class="choice ${rec.decisions[ti]==='lewat'?'sel-lewat':''}" data-dec="lewat" data-ti="${ti}">Lewat</button>
+          </div>`).join('')}</div>
+        <div class="stage-actions"><button class="btn btn-primary" id="toQuestion" ${siap?'':'disabled'}>Buka soal</button></div>
+        ${siap?'':'<p class="muted center" style="margin-top:10px;">Semua kelompok harus menentukan pilihan dulu.</p>'}`;
+    }
+
+    if(fase==='soal'){
+      const ikut=rec.decisions.map((d,ti)=>d==='jawab'?ti:null).filter(x=>x!==null);
+      const siap=ikut.every(ti=>rec.picks[ti]!==null);
+      body=`<div class="center" style="margin-bottom:10px;"><span class="bobot"><b>${q.bobot}</b><span>poin &middot; <b>${esc(q.tema||'tanpa tema')}</b></span></span></div>
+        <p class="qtext">${q.soal.trim()?esc(q.soal):'Soal belum diisi.'}</p>
+        <div class="opts">${q.opsi.map((o,oi)=>`<div class="opt"><span class="lt">${LETTERS[oi]}</span><span>${o.trim()?esc(o):'—'}</span></div>`).join('')}</div>
+        <div class="row-list">${S.teams.map((t,ti)=>{
+          if(rec.decisions[ti]!=='jawab')
+            return `<div class="lrow" data-t="${ti}"><span class="dot"></span><span class="nm">${esc(t.name)}</span><span class="skip">tidak menjawab</span></div>`;
+          return `<div class="lrow" data-t="${ti}"><span class="dot"></span><span class="nm">${esc(t.name)}</span>
+            ${LETTERS.map((L,oi)=>`<button class="pbtn ${rec.picks[ti]===oi?'on':''}" data-pick="${oi}" data-ti="${ti}">${L}</button>`).join('')}</div>`;
+        }).join('')}</div>
+        <div class="stage-actions">
+          <button class="btn btn-ghost" id="backTema">Kembali</button>
+          <button class="btn btn-primary" id="toResult" ${siap?'':'disabled'}>Buka kunci &amp; hitung</button>
+        </div>
+        ${siap?'':'<p class="muted center" style="margin-top:10px;">Catat pilihan setiap kelompok yang ikut menjawab.</p>'}`;
+    }
+
+    if(fase==='hasil'){
+      const last=i===R1_COUNT-1;
+      body=`<div class="center" style="margin-bottom:10px;"><span class="bobot"><b>${q.bobot}</b><span>poin &middot; ${esc(q.tema||'tanpa tema')}</span></span></div>
+        <p class="qtext">${esc(q.soal)}</p>
+        <div class="opts">${q.opsi.map((o,oi)=>`<div class="opt ${oi===q.kunci?'is-key':''}"><span class="lt">${LETTERS[oi]}</span><span>${o.trim()?esc(o):'—'}</span></div>`).join('')}</div>
+        <div class="row-list">${S.teams.map((t,ti)=>{
+          const d=rec.decisions[ti], p=rec.picks[ti];
+          let delta=0, note='Lewat', cls='zero';
+          if(d==='jawab'){ const benar=p===q.kunci; delta=benar?q.bobot:-q.bobot;
+            note='Jawab '+LETTERS[p]+' · '+(benar?'benar':'salah'); cls=benar?'plus':'minus'; }
+          const sign=delta>0?'+':(delta<0?'−':'');
+          return `<div class="lrow"><span class="nm">${esc(t.name)}</span><span class="jw">${note}</span>
+            <span class="delta ${cls}">${sign}${Math.abs(delta)}</span></div>`;
+        }).join('')}</div>
+        <div class="stage-actions"><button class="btn btn-primary" id="nextQ">${last?'Lihat rekap jawaban':'Soal berikutnya'}</button></div>`;
+    }
+
+    paint(`<div class="q-progress">${pips}</div><div class="stage">${body}</div>`);
+    bindR1();
+  }
+
+  function bindR1(){
+    const i=S.play.r1Index, rec=S.play.r1Rec[i], q=S.r1[i];
+    screenEl().querySelectorAll('[data-dec]').forEach(b=>b.addEventListener('click',()=>{
+      const ti=+b.getAttribute('data-ti'), v=b.getAttribute('data-dec');
+      rec.decisions[ti]=rec.decisions[ti]===v?null:v;
+      if(rec.decisions[ti]!=='jawab') rec.picks[ti]=null;
+      persist(); renderR1();
+    }));
+    const tq=el('toQuestion'); if(tq) tq.addEventListener('click',()=>{ S.play.r1Phase='soal'; persist(); renderR1(); });
+    screenEl().querySelectorAll('[data-pick]').forEach(b=>b.addEventListener('click',()=>{
+      rec.picks[+b.getAttribute('data-ti')]=+b.getAttribute('data-pick'); persist(); renderR1(); }));
+    const bk=el('backTema'); if(bk) bk.addEventListener('click',()=>{ S.play.r1Phase='tema'; persist(); renderR1(); });
+    const tr=el('toResult'); if(tr) tr.addEventListener('click',()=>{
+      if(!rec.scored){
+        S.teams.forEach((t,ti)=>{
+          if(rec.decisions[ti]!=='jawab') return;
+          const delta = (rec.picks[ti]===q.kunci) ? q.bobot : -q.bobot;
+          t.score = Number(t.score||0) + Number(delta||0);
+          bumpScore(ti);
+        });
+        rec.scored=true;
+      }
+      S.play.r1Phase='hasil'; persist(); renderAll();
+    });
+    const nx=el('nextQ'); if(nx) nx.addEventListener('click',()=>{
+      if(i===R1_COUNT-1) S.screen='r1recap';
+      else { S.play.r1Index=i+1; S.play.r1Phase='tema'; }
+      persist(); renderAll();
+    });
+  }
+
+  /* ---- Rekap jawaban Ronde 1 ---- */
+  function renderR1Recap(){
+    const totals = S.teams.map(()=>({benar:0,salah:0,lewat:0}));
+    const cards = S.r1.map((q,qi)=>{
+      const rec = S.play.r1Rec[qi];
+      const rows = S.teams.map((t,ti)=>{
+        const d = rec.decisions[ti], p = rec.picks[ti];
+        if(d!=='jawab'){
+          totals[ti].lewat++;
+          return `<div class="recap-team-row" data-t="${ti}">
+            <span class="dot"></span><span class="nm">${esc(t.name)}</span>
+            <span class="recap-ans">Tidak menjawab</span>
+            <span class="recap-badge skip">Lewat</span>
+            <span class="recap-delta zero">0</span>
+          </div>`;
+        }
+        const benar = p===q.kunci;
+        totals[ti][benar?'benar':'salah']++;
+        const delta = benar?q.bobot:-q.bobot;
+        return `<div class="recap-team-row ${benar?'correct':'wrong'}" data-t="${ti}">
+          <span class="dot"></span><span class="nm">${esc(t.name)}</span>
+          <span class="recap-ans">Jawab ${LETTERS[p]}</span>
+          <span class="recap-badge ${benar?'correct':'wrong'}">${benar?'Benar':'Salah'}</span>
+          <span class="recap-delta ${benar?'plus':'minus'}">${benar?'+':'−'}${q.bobot}</span>
+        </div>`;
+      }).join('');
+      const kunciTeks = q.opsi[q.kunci];
+      return `<div class="recap-card">
+        <div class="recap-head">
+          <span class="recap-no">Soal ${qi+1}</span>
+          <span class="recap-tema">${esc(q.tema||'Tanpa tema')}</span>
+          <span class="recap-bobot">${q.bobot} poin</span>
+        </div>
+        <div class="recap-key">Jawaban benar: <b>${LETTERS[q.kunci]}</b>${kunciTeks&&kunciTeks.trim()?' — '+esc(kunciTeks):''}</div>
+        <div class="recap-teams">${rows}</div>
+      </div>`;
+    }).join('');
+
+    const summary = S.teams.map((t,ti)=>`
+      <div class="recap-stat" data-t="${ti}">
+        <span class="nm">${esc(t.name)}</span>
+        <div class="figures"><b class="g">${totals[ti].benar}</b><span class="g">benar</span>
+          <b class="r">${totals[ti].salah}</b><span class="r">salah</span>
+          <b class="s">${totals[ti].lewat}</b><span class="s">lewat</span></div>
+      </div>`).join('');
+
+    paint(`<div class="stage">
+      <div class="center" style="margin-bottom:8px;">
+        <h2 style="font:700 clamp(22px,4vw,30px) 'Space Grotesk',sans-serif;margin:0 0 6px;">Rekap Jawaban Ronde 1</h2>
+        <p class="muted" style="margin:0 0 20px;">Rincian jawaban tiap kelompok untuk seluruh 10 soal, beserta kunci jawabannya.</p>
+      </div>
+      <div class="recap-summary">${summary}</div>
+
+      <div class="stage-actions" style="margin-top:0;margin-bottom:${recapListOpen?'18px':'24px'};">
+        <button class="btn btn-ghost" id="toggleRecap">${recapListOpen?'Sembunyikan rincian jawaban':'Lihat rincian jawaban'}</button>
+      </div>
+
+      ${recapListOpen ? `<div class="recap-list">${cards}</div>` : ''}
+
+      <div class="stage-actions">
+        <button class="btn btn-primary" id="toLbFromRecap">Lanjut ke klasemen</button>
+        <button class="btn btn-ghost" id="dlRecap">Unduh rekap (CSV)</button>
+      </div>
+    </div>`);
+
+    el('toggleRecap').addEventListener('click',()=>{ recapListOpen=!recapListOpen; renderR1Recap(); });
+    el('toLbFromRecap').addEventListener('click',()=>{ S.screen='lb'; persist(); renderAll(); });
+    el('dlRecap').addEventListener('click', exportHasil);
+  }
+
+  /* ---- Klasemen (bisa disunting) ---- */
+  function renderLeaderboard(final){
+    const ranked=S.teams.map((t,i)=>({...t,i,score:Number(t.score)||0})).sort((a,b)=>b.score-a.score);
+    const max=Math.max(1,...ranked.map(r=>Math.abs(r.score)));
+    const colors=['var(--t0)','var(--t1)','var(--t2)'];
+    paint(`<div class="stage">
+        <div class="center" style="margin-bottom:22px;">
+          <h2 style="font:700 clamp(22px,4vw,30px) 'Space Grotesk',sans-serif;margin:0 0 6px;">${final?'Hasil Akhir':'Klasemen Sementara'}</h2>
+          <p class="muted" style="margin:0;">${final?'Selamat kepada pemenangnya.':'Perolehan poin setelah Ronde 1. Ronde 2 dimulai dari sini.'}</p>
+        </div>
+        <div class="podium">${ranked.map((r,pos)=>`
+          <div class="lb-row lb-enter ${pos===0&&!lbEditing?'rank1':''}" style="--d:${pos}">
+            <span class="lb-rank">${lbEditing?'':pos+1}</span>
+            <div style="flex:1;min-width:0;">
+              <div class="lb-name">${esc(r.name)}</div>
+              
+            </div>
+            ${lbEditing
+              ? `<input class="lb-edit" type="number" data-edit-score="${r.i}" value="${r.score}">`
+              : `<div style="text-align:right;"><div class="lb-score" style="color:${colors[r.i]}">${r.score}</div><div class="lb-sub">poin</div></div>`}
+          </div>`).join('')}</div>
+        <div class="stage-actions">
+          ${lbEditing
+            ? `<button class="btn btn-primary" id="lbSave">Simpan nilai</button>
+               <button class="btn btn-ghost" id="lbCancel">Batal</button>`
+            : (final
+              ? `<button class="btn btn-primary" id="saveHist">Simpan hasil</button>
+                 <button class="btn btn-ghost" id="lbEdit">Edit nilai</button>
+                 <button class="btn btn-ghost" id="backR2">Kembali ke papan</button>`
+              : `<button class="btn btn-primary" id="goR2">Lanjut ke Ronde 2</button>
+                 <button class="btn btn-ghost" id="lbEdit">Edit nilai</button>
+                 <button class="btn btn-ghost" id="backR1">Kembali ke Ronde 1</button>`)}
+        </div>
+        ${lbEditing?'<p class="muted center" style="margin-top:12px;">Selisihnya dicatat sebagai koreksi juri di tabel <code>score_adjustments</code>, jadi nilai asli dari kedua ronde tetap utuh.</p>':''}
+        <p class="muted center" id="histMsg" style="margin-top:12px;"></p>
+      </div>`);
+
+    requestAnimationFrame(()=>{
+      screenEl().querySelectorAll('.lb-bar i[data-w]').forEach(bar=>{ bar.style.width=bar.getAttribute('data-w')+'%'; });
+    });
+    const ed=el('lbEdit'); if(ed) ed.addEventListener('click',()=>{ lbEditing=true; renderScreen(); });
+    const cn=el('lbCancel'); if(cn) cn.addEventListener('click',()=>{ lbEditing=false; renderScreen(); });
+    const sv=el('lbSave'); if(sv) sv.addEventListener('click',()=>{
+      screenEl().querySelectorAll('[data-edit-score]').forEach(inp=>{
+        const i=+inp.getAttribute('data-edit-score');
+        const baru=parseInt(inp.value,10);
+        if(isNaN(baru)) return;
+        const delta=baru - (Number(S.teams[i].score)||0);
+        if(delta!==0){
+          S.teams[i].score=baru;
+          bumpScore(i);
+          S.pendingAdjustments.push({slot:i, delta, reason:'Koreksi juri', by:'Operator', at:Date.now()});
+        }
+      });
+      lbEditing=false; persist(); renderAll();
+    });
+    const g=el('goR2'); if(g) g.addEventListener('click',()=>{S.screen='r2';persist();renderAll();});
+    const b1=el('backR1'); if(b1) b1.addEventListener('click',()=>{S.screen='r1';persist();renderAll();});
+    const b2=el('backR2'); if(b2) b2.addEventListener('click',()=>{S.screen='r2';persist();renderAll();});
+    const sh=el('saveHist'); if(sh) sh.addEventListener('click', async()=>{
+      const msg=el('histMsg');
+      const entry={at:Date.now(), nama:'Sesi '+new Date().toLocaleString('id-ID'), teams:S.teams.map(t=>({name:t.name,score:t.score}))};
+      history.unshift(entry); history=history.slice(0,50); lsHistSave();
+      msg.textContent='Tersimpan ke riwayat lokal.';
+      if(apiBase){
+        try{
+          await fetch(apiBase+'/api/state',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(S)});
+          const r=await fetch(apiBase+'/api/sessions/finish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nama:entry.nama})});
+          if(r.ok){ const j=await r.json(); S.sessionId=j.sesiBaru||null; msg.textContent='Sesi ditutup dan tersimpan di server.'; }
+        }catch(e){ msg.textContent='Tersimpan lokal; server tidak terjangkau.'; }
+      }
+      sh.disabled=true;
+    });
+  }
+
+  /* ---- Ronde 2: rebutan, soal tampil sebagai pop-up besar ---- */
+  function r2TileInner(c,i){
+    if(c.status==='solved') return `<div class="solved-check">&#10003;</div><div class="solved-name">${esc(S.teams[c.solvedBy].name)}</div>`;
+    if(c.status==='hangus') return `<div style="font-size:22px;">&#128293;</div><div class="hangus-label">HANGUS</div>`;
+    const dots=Array.from({length:TEAMS},(_,t)=>`<span class="fail-dot ${c.wrong.includes(t)?'used':''}"></span>`).join('');
+    return `${c.wrong.length>0?'<span class="rebut-pill">REBUTAN</span>':''}<div class="card-num">${i+1}</div><div class="fail-dots">${dots}</div>`;
+  }
+  function renderR2(){
+    const cards=S.play.r2Cards, sisa=cards.filter(c=>c.status==='closed'||c.status==='open').length;
+    paint(`<div class="grid">${cards.map((c,i)=>{
+        const bisaKlik = c.status==='closed'||c.status==='open';
+        const ta = c.status==='solved' ? ` data-t="${c.solvedBy}"` : '';
+        const aktif = S.play.openCard===i ? ' is-active' : '';
+        return `<div class="card-tile status-${c.status==='open'?'closed':c.status}${bisaKlik?' is-clickable':''}${aktif}"${ta} data-c="${i}">
+          ${r2TileInner(c,i)}
+        </div>`;
+      }).join('')}</div>
+      <div class="stage-actions">
+        <button class="btn ${sisa===0?'btn-primary':'btn-ghost'}" id="toFinal">${sisa===0?'Lihat hasil akhir':'Akhiri & lihat hasil'}</button>
+        <button class="btn btn-ghost" id="backLb">Lihat klasemen</button>
+      </div>
+      <p class="muted center" style="margin-top:10px;">${sisa} kotak belum selesai.</p>`);
+    screenEl().querySelector('.grid').addEventListener('click', e=>{
+      const tile=e.target.closest('.card-tile.is-clickable'); if(!tile) return;
+      openQModal(+tile.getAttribute('data-c'));
+    });
+    el('toFinal').addEventListener('click',()=>{S.screen='final';persist();renderAll();});
+    el('backLb').addEventListener('click',()=>{S.screen='lb';persist();renderAll();});
+  }
+
+  function renderQModal(i){
+    const c=S.play.r2Cards[i], q=S.r2[i];
+    const open=!!S.play.keyVisible[i], rebutan=c.wrong.length>0;
+    const rows=S.teams.map((t,ti)=>{
+      const off=c.wrong.includes(ti);
+      return `<div class="q-modal-row ${off?'off':''}"><span class="nm ${off?'strike':''}">${esc(t.name)}</span>
+        <button class="qbtn qbtn-yes" data-act="yes" data-ti="${ti}" ${off?'disabled':''}>&#10003;</button>
+        <button class="qbtn qbtn-no" data-act="no" data-ti="${ti}" ${off?'disabled':''}>&#10005;</button></div>`;
+    }).join('');
+    const key=q.kunci.trim()
+      ? (open?`<div class="q-modal-key" style="font-size:20px">Kunci: ${esc(q.kunci)}</div><button class="q-modal-key-toggle" data-act="key">Sembunyikan kunci</button>`
+             :`<button class="q-modal-key-toggle" data-act="key">Lihat kunci jawaban</button>`) : '';
+    el('qModal').innerHTML=`
+      <div class="q-modal-head"><span class="q-modal-num">KOTAK ${i+1}</span><span class="q-modal-poin">${S.r2Points} POIN</span></div>
+      ${rebutan?`<div class="q-modal-rebut">DIREBUTKAN — sisa ${TEAMS-c.wrong.length - 1} kelompok boleh menjawab</div>`:''}
+      <p class="q-modal-text">${q.soal.trim()?esc(q.soal):'Soal belum diisi. Isi lewat menu Edit Soal.'}</p>
+      ${key}
+      <div class="q-modal-teams">${rows}</div>
+      <div class="q-modal-actions"><button class="btn btn-ghost btn-sm" id="qClose">${rebutan?'Sembunyikan sementara':'Tutup tanpa jawaban'}</button></div>`;
+    el('qClose').addEventListener('click', closeQModal);
+    const kb=document.querySelector('#qModal [data-act="key"]');
+    if(kb) kb.addEventListener('click',()=>{ S.play.keyVisible[i]=!S.play.keyVisible[i]; persist(); renderQModal(i); });
+    el('qModal').querySelectorAll('[data-act="yes"],[data-act="no"]').forEach(b=>{
+      b.addEventListener('click',()=>{
+        const ti=+b.getAttribute('data-ti'), kind=b.getAttribute('data-act');
+        if(kind==='yes'){
+          // benar: poin langsung ke kelompok yang menjawab, kotak selesai
+          c.status='solved'; c.solvedBy=ti;
+          S.teams[ti].score = Number(S.teams[ti].score||0) + S.r2Points;
+          bumpScore(ti);
+          S.play.openCard=null;
+          el('qOverlay').classList.remove('show');
+          persist(); renderAll();
+        }else{
+          // salah: kelompok itu gugur, soal direbutkan — kotak TETAP terbuka
+          if(!c.wrong.includes(ti)) c.wrong.push(ti);
+          const tile=screenEl().querySelector(`.card-tile[data-c="${i}"]`);
+          if(tile) tile.classList.add('flash-wrong');
+          if(c.wrong.length>=TEAMS){
+            c.status='hangus'; persist();
+            el('qOverlay').classList.remove('show');
+            setTimeout(()=>{ S.play.openCard=null; renderAll(); },380);
+          }else{
+            c.status='open'; persist(); renderQModal(i); renderR2Tile(i);
+            setTimeout(()=>{ if(tile) tile.classList.remove('flash-wrong'); },460);
+          }
+        }
+      });
+    });
+  }
+  function renderR2Tile(i){
+    // perbarui satu kotak di papan tanpa menutup pop-up yang sedang terbuka
+    const tile=screenEl().querySelector(`.card-tile[data-c="${i}"]`);
+    if(tile) tile.innerHTML = r2TileInner(S.play.r2Cards[i], i);
+  }
+  function openQModal(i){
+    S.play.openCard=i; persist();
+    renderQModal(i);
+    el('qOverlay').classList.add('show');
+    renderR2();
+  }
+  function closeQModal(){
+    S.play.openCard=null; persist();
+    el('qOverlay').classList.remove('show');
+    renderR2();
+  }
+
+  /* ================= CSV ================= */
+  const cell=v=>{ const s=String(v==null?'':v); return /[";\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; };
+  const toCSV=rows=>'\ufeff'+rows.map(r=>r.map(cell).join(';')).join('\r\n');
+  function parseCSV(text){
+    if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+    const l0=text.split('\n')[0];
+    const delim = l0.split(';').length > l0.split(',').length ? ';' : ',';
+    const rows=[]; let row=[], c='', q=false;
+    for(let i=0;i<text.length;i++){
+      const ch=text[i];
+      if(q){ if(ch==='"'){ if(text[i+1]==='"'){c+='"';i++;} else q=false; } else c+=ch; }
+      else if(ch==='"') q=true;
+      else if(ch===delim){ row.push(c); c=''; }
+      else if(ch==='\n'){ row.push(c); rows.push(row); row=[]; c=''; }
+      else if(ch!=='\r') c+=ch;
+    }
+    if(c.length||row.length){ row.push(c); rows.push(row); }
+    return rows.filter(r=>r.some(x=>x.trim()!==''));
+  }
+  async function download(filename, text){
+    const blob=new Blob([text],{type:'text/csv;charset=utf-8'});
+    let dl=null;
+    try{ dl = window.claude && await window.claude.use('downloads'); }catch(e){}
+    if(dl){ try{ await dl.save({filename, data:blob}); return; }catch(e){ if(e&&e.code==='declined') return; } }
+    const url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+  }
+  function exportSoal(){
+    const rows=[['ronde','nomor','tema','bobot','soal','opsi_a','opsi_b','opsi_c','opsi_d','kunci']];
+    S.r1.forEach((q,i)=>rows.push([1,i+1,q.tema,q.bobot,q.soal,q.opsi[0],q.opsi[1],q.opsi[2],q.opsi[3],LETTERS[q.kunci]]));
+    S.r2.forEach((q,i)=>rows.push([2,i+1,'',S.r2Points,q.soal,'','','','',q.kunci]));
+    download('bank-soal-lcc-2026.csv', toCSV(rows));
+  }
+  function exportHasil(){
+    const rows=[['KLASEMEN'],['peringkat','kelompok','skor_akhir']];
+    S.teams.map((t,i)=>({...t,i})).sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0)).forEach((t,p)=>rows.push([p+1,t.name,t.score]));
+    rows.push([],['RONDE 1 — DETAIL']);
+    rows.push(['nomor','tema','bobot','kunci',...S.teams.flatMap(t=>[t.name+' keputusan',t.name+' jawaban',t.name+' poin'])]);
+    S.r1.forEach((q,i)=>{
+      const rec=S.play.r1Rec[i];
+      const cols=S.teams.map((t,ti)=>{
+        if(rec.decisions[ti]!=='jawab') return ['lewat','',0];
+        const benar=rec.picks[ti]===q.kunci;
+        return ['jawab',LETTERS[rec.picks[ti]]||'', rec.scored?(benar?q.bobot:-q.bobot):0];
+      }).flat();
+      rows.push([i+1,q.tema,q.bobot,LETTERS[q.kunci],...cols]);
+    });
+    rows.push([],['RONDE 2 — DETAIL']);
+    rows.push(['kotak','soal','status','dijawab_benar_oleh','urutan_rebutan_salah','poin']);
+    S.play.r2Cards.forEach((c,i)=>rows.push([i+1,S.r2[i].soal,
+      c.status==='solved'?'terjawab':(c.status==='hangus'?'hangus':(c.status==='open'?'direbutkan':'belum dibuka')),
+      c.solvedBy!=null?S.teams[c.solvedBy].name:'',
+      c.wrong.map(t=>S.teams[t].name).join(' → '),
+      c.status==='solved'?S.r2Points:0]));
+    if(S.pendingAdjustments.length){
+      rows.push([],['KOREKSI JURI'],['kelompok','selisih','alasan']);
+      S.pendingAdjustments.forEach(a=>rows.push([S.teams[a.slot].name,a.delta,a.reason]));
+    }
+    download('hasil-lcc-2026.csv', toCSV(rows));
+  }
+  function exportRiwayat(){
+    const rows=[['waktu','sesi','peringkat','kelompok','skor']];
+    history.forEach(h=>{
+      const when=new Date(h.at||0).toLocaleString('id-ID');
+      (h.teams||[]).slice().sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0)).forEach((t,p)=>rows.push([when,h.nama||'',p+1,t.name,t.score]));
+    });
+    if(rows.length===1) rows.push(['(belum ada riwayat)','','','','']);
+    download('riwayat-lcc-2026.csv', toCSV(rows));
+  }
+  function importSoal(file){
+    const st=el('impStatus'), rd=new FileReader();
+    rd.onload=()=>{
+      try{
+        const rows=parseCSV(String(rd.result));
+        const head=rows[0].map(h=>h.trim().toLowerCase());
+        const ix=n=>head.indexOf(n);
+        const kolomRonde = ix('ronde')>=0 ? ix('ronde') : ix('babak');
+        if(kolomRonde<0 || ix('nomor')<0 || ix('soal')<0) throw new Error('Kolom ronde, nomor, dan soal wajib ada.');
+        let c1=0,c2=0;
+        rows.slice(1).forEach(r=>{
+          const ronde=parseInt(r[kolomRonde],10), no=parseInt(r[ix('nomor')],10);
+          if(!no) return;
+          if(ronde===1 && no<=R1_COUNT){
+            const q=S.r1[no-1];
+            if(ix('tema')>=0) q.tema=r[ix('tema')]||'';
+            if(ix('bobot')>=0 && r[ix('bobot')]) q.bobot=Math.max(0,parseInt(r[ix('bobot')],10)||0);
+            q.soal=r[ix('soal')]||'';
+            ['opsi_a','opsi_b','opsi_c','opsi_d'].forEach((k,oi)=>{ if(ix(k)>=0) q.opsi[oi]=r[ix(k)]||''; });
+            if(ix('kunci')>=0){ const p=LETTERS.indexOf((r[ix('kunci')]||'A').trim().toUpperCase()); q.kunci=p>=0?p:0; }
+            c1++;
+          }else if(ronde===2 && no<=R2_COUNT){
+            S.r2[no-1].soal=r[ix('soal')]||'';
+            if(ix('kunci')>=0) S.r2[no-1].kunci=r[ix('kunci')]||'';
+            c2++;
+          }
+        });
+        st.className='status-line good';
+        st.textContent=`Berhasil: ${c1} soal Ronde 1 dan ${c2} soal Ronde 2 dimuat.`;
+        persist(); renderAll();
+      }catch(err){ st.className='status-line bad'; st.textContent='Gagal membaca berkas. '+(err.message||''); }
+    };
+    rd.readAsText(file,'UTF-8');
+  }
+
+  /* ================= MODAL ================= */
+  function renderEdit(){
+    const box=el('editBody');
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.getAttribute('data-tab')===editTab));
+    if(editTab==='r1'){
+      box.innerHTML=editDraft.r1.map((q,i)=>`
+        <div class="edit-row"><div class="num">${i+1}</div><div class="fields">
+          <div class="row2">
+            <input class="grow" type="text" placeholder="Tema soal" data-f="tema" data-i="${i}" value="${esc(q.tema)}">
+            <input type="number" style="width:96px;" placeholder="Bobot" min="0" data-f="bobot" data-i="${i}" value="${q.bobot}">
+          </div>
+          <textarea placeholder="Pertanyaan" data-f="soal" data-i="${i}">${esc(q.soal)}</textarea>
+          ${q.opsi.map((o,oi)=>`<div class="opt-in">
+            <input type="radio" name="key${i}" data-f="kunci" data-i="${i}" data-oi="${oi}" ${q.kunci===oi?'checked':''} title="Tandai kunci">
+            <span class="lt">${LETTERS[oi]}</span>
+            <input type="text" placeholder="Pilihan ${LETTERS[oi]}" data-f="opsi" data-i="${i}" data-oi="${oi}" value="${esc(o)}">
+          </div>`).join('')}
+        </div></div>`).join('');
+    }else{
+      box.innerHTML=`<div class="edit-row" style="border-top:none;"><div class="num">★</div><div class="fields">
+          <label class="muted" style="font-size:12px;">Poin per kotak Ronde 2</label>
+          <input type="number" min="1" style="width:120px;" data-f="r2points" value="${editDraft.r2Points}">
+        </div></div>`+
+        editDraft.r2.map((q,i)=>`
+        <div class="edit-row"><div class="num">${i+1}</div><div class="fields">
+          <textarea placeholder="Pertanyaan kotak ${i+1}" data-f="r2soal" data-i="${i}">${esc(q.soal)}</textarea>
+          <input type="text" placeholder="Kunci jawaban" data-f="r2kunci" data-i="${i}" value="${esc(q.kunci)}">
+        </div></div>`).join('');
+    }
+    box.querySelectorAll('[data-f]').forEach(inp=>{
+      inp.addEventListener(inp.type==='radio'?'change':'input',()=>{
+        const f=inp.getAttribute('data-f'), i=+inp.getAttribute('data-i'), oi=+inp.getAttribute('data-oi');
+        if(f==='tema') editDraft.r1[i].tema=inp.value;
+        else if(f==='bobot') editDraft.r1[i].bobot=Math.max(0,parseInt(inp.value||'0',10));
+        else if(f==='soal') editDraft.r1[i].soal=inp.value;
+        else if(f==='opsi') editDraft.r1[i].opsi[oi]=inp.value;
+        else if(f==='kunci') editDraft.r1[i].kunci=oi;
+        else if(f==='r2soal') editDraft.r2[i].soal=inp.value;
+        else if(f==='r2kunci') editDraft.r2[i].kunci=inp.value;
+        else if(f==='r2points') editDraft.r2Points=Math.max(1,parseInt(inp.value||'1',10));
+      });
+    });
+  }
+  function renderHistory(){
+    const box=el('histBody');
+    if(!history.length){ box.innerHTML='<p class="muted">Belum ada permainan yang disimpan.</p>'; return; }
+    box.innerHTML=history.map(h=>{
+      const d=new Date(h.at||0);
+      const when=d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})+' · '+d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+      const sorted=(h.teams||[]).slice().sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0));
+      return `<div class="hist-row">
+        <div class="hist-names">${sorted.map((t,i)=>`<span>${i+1}. ${esc(t.name)} <b>${t.score}</b></span>`).join('')}</div>
+        <div class="when">${when}</div></div>`;
+    }).join('');
+  }
+
+  /* ================= WIRING ================= */
+  el('btnEdit').addEventListener('click',()=>{
+    editDraft=clone({r1:S.r1,r2:S.r2,r2Points:S.r2Points});
+    renderEdit(); el('editOverlay').classList.add('show');
+  });
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{ editTab=t.getAttribute('data-tab'); renderEdit(); }));
+  el('btnCancelEdit').addEventListener('click',()=>el('editOverlay').classList.remove('show'));
+  el('btnSaveEdit').addEventListener('click',()=>{
+    S.r1=editDraft.r1; S.r2=editDraft.r2; S.r2Points=editDraft.r2Points;
+    el('editOverlay').classList.remove('show'); persist(); renderAll();
+  });
+
+  el('btnData').addEventListener('click',()=>{ el('apiBase').value=apiBase; el('dataOverlay').classList.add('show'); });
+  el('btnCloseData').addEventListener('click',()=>el('dataOverlay').classList.remove('show'));
+  el('expSoal').addEventListener('click',exportSoal);
+  el('expHasil').addEventListener('click',exportHasil);
+  el('expRiwayat').addEventListener('click',exportRiwayat);
+  el('impSoal').addEventListener('change',e=>{ if(e.target.files[0]) importSoal(e.target.files[0]); e.target.value=''; });
+  el('testApi').addEventListener('click', async()=>{
+    const st=el('apiStatus');
+    apiBase=el('apiBase').value.trim().replace(/\/$/,'');
+    try{ localStorage.setItem(LS_API,apiBase); }catch(e){}
+    if(!apiBase){ st.className='status-line'; st.textContent='Mode lokal aktif.'; apiOk=null; renderSync(); return; }
+    st.className='status-line'; st.textContent='Menghubungi server…';
+    try{
+      const j=await apiGet('/api/health');
+      apiOk=true; st.className='status-line good';
+      st.textContent='Tersambung. MySQL '+(j.db||'')+' · '+(j.tabel||0)+' tabel · sesi #'+(j.session||'-');
+    }catch(e){
+      apiOk=false; st.className='status-line bad';
+      st.textContent='Tidak terjangkau. Bila halaman ini dibuka dari claude.ai, koneksi ke server luar memang diblokir — jalankan berkas HTML-nya lewat server Express Anda.';
+    }
+    renderSync();
+  });
+  el('pullApi').addEventListener('click', async()=>{
+    const st=el('apiStatus');
+    if(!apiBase){ st.className='status-line bad'; st.textContent='Isi alamat server dulu.'; return; }
+    try{
+      const j=await apiGet('/api/state');
+      if(j&&j.state){ S=normalize(j.state); lsSave(); lastScreen=null; renderAll(); }
+      const h=await apiGet('/api/history'); if(Array.isArray(h)){ history=h; lsHistSave(); }
+      apiOk=true; st.className='status-line good'; st.textContent='Data diambil dari server.';
+    }catch(e){ apiOk=false; st.className='status-line bad'; st.textContent='Gagal mengambil data.'; }
+    renderSync();
+  });
+
+  el('btnHistory').addEventListener('click',()=>{ renderHistory(); el('histOverlay').classList.add('show'); });
+  el('btnCloseHist').addEventListener('click',()=>el('histOverlay').classList.remove('show'));
+  el('btnReset').addEventListener('click',()=>el('resetOverlay').classList.add('show'));
+  el('btnCancelReset').addEventListener('click',()=>el('resetOverlay').classList.remove('show'));
+  el('btnConfirmReset').addEventListener('click',()=>{
+    const f=blankState();
+    f.sessionId=S.sessionId; f.rev=S.rev; f.r1=S.r1; f.r2=S.r2; f.r2Points=S.r2Points;
+    f.teams=S.teams.map(t=>({name:t.name,score:0}));
+    S=f; lbEditing=false; lastScreen=null;
+    el('resetOverlay').classList.remove('show'); persist(); renderAll();
+  });
+
+  el('sfxWin').addEventListener('click',()=>{ Sound.win(); FX.confetti(140); });
+  el('sfxSad').addEventListener('click',()=>Sound.sad());
+  el('sfxShush').addEventListener('click',()=>{ Sound.shush(); shushFlash(); });
+  el('btnMute').addEventListener('click',e=>{
+    const m=Sound.toggleMute();
+    e.currentTarget.textContent=m?'🔇':'🔊';
+    e.currentTarget.classList.toggle('muted',m);
+  });
+  if(Sound.isMuted()){ el('btnMute').textContent='🔇'; el('btnMute').classList.add('muted'); }
+
+  document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('show'); }));
+  el('qOverlay').addEventListener('click',e=>{ if(e.target===el('qOverlay')) closeQModal(); });
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      document.querySelectorAll('.overlay.show').forEach(o=>o.classList.remove('show'));
+      if(el('qOverlay').classList.contains('show')) closeQModal();
+    }
+    if(e.target.isContentEditable||['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
+    if(e.key==='1'){ Sound.win(); FX.confetti(140); }
+    if(e.key==='2'){ Sound.sad(); }
+    if(e.key==='3'){ Sound.shush(); shushFlash(); }
+  });
+
+  /* ================= BOOT ================= */
+  try{ apiBase=localStorage.getItem(LS_API)||''; }catch(e){}
+  if(!apiBase && location.protocol.startsWith('http') && !/claude\.ai|claudeusercontent/.test(location.hostname)){
+    apiBase=location.origin;
+  }
+  const cached=lsLoad();
+  if(cached) S=normalize(cached);
+  history=lsHistLoad();
+  renderAll();
+
+  if(apiBase){
+    (async()=>{
+      try{
+        const j=await apiGet('/api/state');
+        if(j&&j.state&&(j.state.rev||0)>=(S.rev||0)){ S=normalize(j.state); lsSave(); lastScreen=null; renderAll(); }
+        const h=await apiGet('/api/history'); if(Array.isArray(h)){ history=h; lsHistSave(); }
+        apiOk=true;
+      }catch(e){ apiOk=false; }
+      renderSync();
+    })();
+  }
+})();
+</script>
+</body>
+</html>

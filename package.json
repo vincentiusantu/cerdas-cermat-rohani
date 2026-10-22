@@ -1,0 +1,13 @@
+{
+  "name": "lcc-rohani-2026",
+  "version": "2.0.0",
+  "description": "Babak Final Lomba Cerdas Cermat Rohani 2026 — Paroki Santa Odilia Cicadas Bandung",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mysql2": "^3.11.0"
+  }
+}
